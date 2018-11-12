@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [{
+            "label": "Build Nano AndroidClient",
+            "type": "shell",
+            "group": "build",
+            "command": "msbuild",
+            "args": [
+                "/p:AndroidSdkDirectory=${env:HOME}/Android/Sdk",
+                "${workspaceRoot}/SmartGlass.Nano.Droid/SmartGlass.Nano.Droid.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build & Install Nano AndroidClient",
+            "type": "shell",
+            "group": "build",
+            "command": "msbuild",
+            "args": [
+                "/p:AndroidSdkDirectory=${env:HOME}/Android/Sdk",
+                "${workspaceRoot}/SmartGlass.Nano.Droid/SmartGlass.Nano.Droid.csproj",
+                "/t:install"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ]
+}

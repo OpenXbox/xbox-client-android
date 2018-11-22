@@ -1,6 +1,14 @@
 {
     "version": "2.0.0",
     "tasks": [{
+            "label": "Restore dependencies",
+            "type": "shell",
+            "group": "build",
+            "command": "nuget",
+            "args": ["restore"],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "Build Nano AndroidClient",
             "type": "shell",
             "group": "build",

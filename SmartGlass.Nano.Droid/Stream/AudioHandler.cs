@@ -7,7 +7,7 @@ using SmartGlass.Nano.Packets;
 namespace SmartGlass.Nano.Droid
 {
     public class AudioHandler
-        : MediaCodec.Callback, Consumer.IAudioConsumer, IDisposable
+        : MediaCodec.Callback, IDisposable
     {
         private Packets.AudioFormat _audioFormat;
 
@@ -16,8 +16,9 @@ namespace SmartGlass.Nano.Droid
 
         private Queue<Consumer.AACFrame> _audioFrameQueue;
 
-        public AudioHandler()
+        public AudioHandler(Packets.AudioFormat format)
         {
+            _audioFormat = format;
             _audioFrameQueue = new Queue<Consumer.AACFrame>();
         }
 
@@ -83,11 +84,6 @@ namespace SmartGlass.Nano.Droid
             {
                 _audioFrameQueue.Enqueue(frame);
             }
-        }
-
-        public void ConsumeAudioFormat(Packets.AudioFormat format)
-        {
-            _audioFormat = format;
         }
 
         public override void OnError(MediaCodec codec, MediaCodec.CodecException e)

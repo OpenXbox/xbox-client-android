@@ -1,8 +1,9 @@
 ﻿
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Android.App;
 using Android.Content;
@@ -13,9 +14,10 @@ using Android.Views;
 using Android.Widget;
 using Android.Graphics;
 using Android.Media;
-using System.Threading.Tasks;
-using SmartGlass.Nano.Consumer;
 using Android.Hardware.Input;
+
+using SmartGlass.Common;
+using SmartGlass.Nano.Consumer;
 
 namespace SmartGlass.Nano.Droid
 {
@@ -89,9 +91,7 @@ namespace SmartGlass.Nano.Droid
             if (setupRan)
                 return;
 
-            _mcConsumer = new MediaCoreConsumer(surface);
-
-            Task.Run(() => StartStream());
+            Task.Run(() => StartStream(surface));
             setupRan = true;
         }
 
@@ -255,24 +255,46 @@ namespace SmartGlass.Nano.Droid
          * Protocol
          */
 
-        public async Task StartStream()
+        public async Task StartStream(SurfaceTexture surface)
         {
             System.Diagnostics.Debug.WriteLine($"Connecting to console...");
 
             _smartGlassClient = await SmartGlassClient.ConnectAsync(_hostName);
 
+            // Get general gamestream configuration
+            var config = GamestreamConfiguration.GetStandardConfig();
+
+            /* Modify standard config, if desired */
+
             var broadcastChannel = _smartGlassClient.BroadcastChannel;
-            var result = await broadcastChannel.StartGamestreamAsync();
+            var session = await broadcastChannel.StartGamestreamAsync(config);
 
-            System.Diagnostics.Debug.WriteLine($"Connecting to Nano, TCP: {result.TcpPort}, UDP: {result.UdpPort}");
+            System.Diagnostics.Debug.WriteLine(
+                $"Connecting to Nano, TCP: {session.TcpPort}, UDP: {session.UdpPort}");
 
-            _nanoClient = new NanoClient(_hostName,
-                                         result.TcpPort, result.UdpPort,
-                                         new System.Guid(),
-                                         _mcConsumer);
+            _nanoClient = new NanoClient(_hostName, session);
 
-            await _nanoClient.Initialize();
-            await _nanoClient.StartStream();
+            // General Handshaking & Opening channels
+            await _nanoClient.InitializeProtocolAsync();
+
+            // Audio & Video client handshaking
+            // Sets desired AV formats
+            Packets.AudioFormat audioFormat = _nanoClient.AudioFormats[0];
+            Packets.VideoFormat videoFormat = _nanoClient.VideoFormats[0];
+            await _nanoClient.InitializeStreamAsync(audioFormat, videoFormat);
+
+            // Start ChatAudio channel
+            Packets.AudioFormat chatAudioFormat = new Packets.AudioFormat(1, 24000, AudioCodec.Opus);
+            await _nanoClient.OpenChatAudioChannelAsync(chatAudioFormat);
+
+            _mcConsumer = new MediaCoreConsumer(surface, audioFormat, videoFormat);
+            _nanoClient.AddConsumer(_mcConsumer);
+
+            // Tell console to start sending AV frames
+            await _nanoClient.StartStreamAsync();
+
+            // Start Controller input channel
+            await _nanoClient.OpenInputChannelAsync(1280, 720);
 
             System.Diagnostics.Debug.WriteLine($"Nano connected and running.");
         }

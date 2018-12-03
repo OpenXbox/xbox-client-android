@@ -9,7 +9,7 @@ using SmartGlass.Nano.Packets;
 namespace SmartGlass.Nano.Droid
 {
     public class VideoHandler
-        : MediaCodec.Callback, Consumer.IVideoConsumer, IDisposable
+        : MediaCodec.Callback, IDisposable
     {
         private readonly SurfaceTexture _surface;
 
@@ -19,9 +19,10 @@ namespace SmartGlass.Nano.Droid
 
         private MediaCodec _videoCodec;
 
-        public VideoHandler(SurfaceTexture surface)
+        public VideoHandler(SurfaceTexture surface, Packets.VideoFormat format)
         {
             _surface = surface;
+            _videoFormat = format;
 
             _videoFrameQueue = new Queue<Consumer.H264Frame>();
             _videoAssembler = new Consumer.VideoAssembler();
@@ -54,7 +55,7 @@ namespace SmartGlass.Nano.Droid
             _videoCodec.Start();
         }
 
-        public void ConsumeVideoData(VideoData data)
+        public void ConsumeVideoData(Packets.VideoData data)
         {
             H264Frame frame = _videoAssembler.AssembleVideoFrame(data);
             if (frame != null)
@@ -77,11 +78,6 @@ namespace SmartGlass.Nano.Droid
                 */
                 _videoFrameQueue.Enqueue(frame);
             }
-        }
-
-        public void ConsumeVideoFormat(VideoFormat format)
-        {
-            _videoFormat = format;
         }
 
         public override void OnError(MediaCodec codec, MediaCodec.CodecException e)

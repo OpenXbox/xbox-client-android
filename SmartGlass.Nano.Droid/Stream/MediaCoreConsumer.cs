@@ -12,33 +12,28 @@ namespace SmartGlass.Nano.Droid
         VideoHandler _video;
         AudioHandler _audio;
 
-        public MediaCoreConsumer(Android.Graphics.SurfaceTexture surface)
+        public MediaCoreConsumer(Android.Graphics.SurfaceTexture surface,
+            Packets.AudioFormat audioFormat, Packets.VideoFormat videoFormat)
         {
-            _video = new VideoHandler(surface);
-            _audio = new AudioHandler();
+            _video = new VideoHandler(surface, videoFormat);
+            _audio = new AudioHandler(audioFormat);
             //TODO: Setup dynamically
-            _video.SetupVideo(1280, 720, null, null);
-            _audio.SetupAudio(48000, 2, null);
+            _video.SetupVideo((int)videoFormat.Width, (int)videoFormat.Height, null, null);
+            _audio.SetupAudio((int)audioFormat.SampleRate, (int)audioFormat.Channels, null);
         }
 
-        public void ConsumeAudioData(AudioData data)
+        public void ConsumeAudioData(object sender, AudioDataEventArgs args)
         {
-            _audio.ConsumeAudioData(data);
+            _audio.ConsumeAudioData(args.AudioData);
         }
 
-        public void ConsumeAudioFormat(Packets.AudioFormat format)
+        public void ConsumeVideoData(object sender, VideoDataEventArgs args)
         {
-            _audio.ConsumeAudioFormat(format);
+            _video.ConsumeVideoData(args.VideoData);
         }
 
-        public void ConsumeVideoData(VideoData data)
+        public void ConsumeInputFeedbackFrame(object sender, InputFrameEventArgs args)
         {
-            _video.ConsumeVideoData(data);
-        }
-
-        public void ConsumeVideoFormat(VideoFormat format)
-        {
-            _video.ConsumeVideoFormat(format);
         }
 
         public void Dispose()

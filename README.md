@@ -25,3 +25,7 @@ msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH
 # Build APK & push to device
 msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH} /t:install
 ```
+
+## Sneak preview
+
+[![xNano Android Xbox Gamestreaming - alpha](https://img.youtube.com/vi/kHDYIsiFNaM/0.jpg)](https://www.youtube.com/watch?v=kHDYIsiFNaM "xNano Android Xbox Gamestreaming - alpha")

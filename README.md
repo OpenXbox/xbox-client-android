@@ -1,5 +1,6 @@
 # Xbox One Gamestreaming Android app
 
+[![Build status](https://ci.appveyor.com/api/projects/status/irv30kc612dbn75x/branch/master?svg=true)](https://ci.appveyor.com/project/tuxuser/xbox-client-android/branch/master)
 [![Discord](https://img.shields.io/badge/discord-OpenXbox-blue.svg)](https://discord.gg/E8kkJhQ)
 
 Use **Visual Studio** or **Visual Studio for Mac** to build this project.
@@ -20,7 +21,7 @@ export BUILD_TYPE="Debug"
 # export BUILD_TYPE="Release"
 
 # Build APK
-msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH} /t:package
+msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH} /t:PackageForAndroid
 
 # Build APK & push to device
 msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH} /t:install

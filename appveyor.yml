@@ -1,0 +1,32 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+
+configuration:
+  - Debug
+  - Release
+
+environment:
+  keystore-password:
+    secure: DbsLa0YaOQb8BJox0D0crKWqGL3TiiUuSvVzTCTHoFkL8ZdSOwON8khP8tnIZnavFLbDxQyqLKC2PSjUAxbIep/tkUA6H5RTQ8FfYP+dLoBiUxCAONaklBIb8ZBCMRLzDqq2xjJ4T0i57jl8t3eGEQ==
+
+before_build:
+  - nuget restore
+build_script:
+  - msbuild /t:SignAndroidPackage /p:Configuration=%CONFIGURATION% /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=OpenXboxAndroid /p:AndroidSigningKeyPass=%keystore-password% /p:AndroidSigningKeyStore=android_openxbox.keystore /p:AndroidSigningStorePass=%keystore-password% SmartGlass.Nano.Droid\SmartGlass.Nano.Droid.csproj
+
+artifacts:
+  - path: SmartGlass.Nano.Droid\bin\*\*-Signed.apk
+    name: apk
+    type: File
+
+deploy:
+  - provider: GitHub
+    description: "Android APK"
+    artifact: apk
+    auth_token:
+      secure: qglMtUCbrzIn+36s7qWOPEj0HmJgs99bnzi4K8uYNPoxGW0qmJdOD1lmsa3TzGPn
+    draft: false
+    prerelease: false
+    tag: $(APPVEYOR_REPO_TAG_NAME)
+    on:
+      appveyor_repo_tag: true

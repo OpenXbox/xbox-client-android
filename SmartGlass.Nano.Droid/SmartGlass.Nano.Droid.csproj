@@ -14,7 +14,7 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
+    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -26,17 +26,18 @@
     <WarningLevel>4</WarningLevel>
     <AndroidLinkMode>None</AndroidLinkMode>
     <JavaMaximumHeapSize></JavaMaximumHeapSize>
-    <AndroidSupportedAbis>arm64-v8a;armeabi-v7a;x86</AndroidSupportedAbis>
+    <AndroidSupportedAbis>arm64-v8a,armeabi-v7a,x86</AndroidSupportedAbis>
+    <AndroidUseSharedRuntime>true</AndroidUseSharedRuntime>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AndroidManagedSymbols>true</AndroidManagedSymbols>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <JavaMaximumHeapSize></JavaMaximumHeapSize>
   </PropertyGroup>
   <ItemGroup>
@@ -45,13 +46,13 @@
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
     <Reference Include="OpenXbox.SmartGlass.Common">
-      <HintPath>..\packages\OpenXbox.SmartGlass.Common.1.0.2\lib\netstandard2.0\SmartGlass.Common.dll</HintPath>
+      <HintPath>..\packages\OpenXbox.SmartGlass.Common.1.0.4\lib\netstandard2.0\SmartGlass.Common.dll</HintPath>
     </Reference>
     <Reference Include="OpenXbox.SmartGlass">
-      <HintPath>..\packages\OpenXbox.SmartGlass.1.0.2\lib\netstandard2.0\SmartGlass.dll</HintPath>
+      <HintPath>..\packages\OpenXbox.SmartGlass.1.0.4\lib\netstandard2.0\SmartGlass.dll</HintPath>
     </Reference>
     <Reference Include="OpenXbox.SmartGlass.Nano">
-      <HintPath>..\packages\OpenXbox.SmartGlass.Nano.1.0.2\lib\netstandard2.0\SmartGlass.Nano.dll</HintPath>
+      <HintPath>..\packages\OpenXbox.SmartGlass.Nano.1.0.4\lib\netstandard2.0\SmartGlass.Nano.dll</HintPath>
     </Reference>
     <Reference Include="System.Buffers">
       <HintPath>..\packages\System.Buffers.4.5.0\lib\netstandard2.0\System.Buffers.dll</HintPath>

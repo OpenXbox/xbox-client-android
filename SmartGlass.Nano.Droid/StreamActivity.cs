@@ -287,14 +287,14 @@ namespace SmartGlass.Nano.Droid
             Packets.AudioFormat chatAudioFormat = new Packets.AudioFormat(1, 24000, AudioCodec.Opus);
             await _nanoClient.OpenChatAudioChannelAsync(chatAudioFormat);
 
+            // Start Controller input channel
+            await _nanoClient.OpenInputChannelAsync(1280, 720);
+
             _mcConsumer = new MediaCoreConsumer(surface, audioFormat, videoFormat);
             _nanoClient.AddConsumer(_mcConsumer);
 
             // Tell console to start sending AV frames
             await _nanoClient.StartStreamAsync();
-
-            // Start Controller input channel
-            await _nanoClient.OpenInputChannelAsync(1280, 720);
 
             System.Diagnostics.Debug.WriteLine($"Nano connected and running.");
         }

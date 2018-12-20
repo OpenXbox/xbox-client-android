@@ -16,15 +16,19 @@ The app is based on .NET library [OpenXbox.SmartGlass](https://github.com/OpenXb
 ```bash
 export ANDROID_SDK_PATH="/path_to/Android/Sdk"
 export ANDROID_NDK_PATH="/path_to/Android/Sdk/ndk-bundle"
+export AndroidSdkDirectory="/path_to/Android/Sdk"
 export BUILD_TYPE="Debug"
 # Or use:
 # export BUILD_TYPE="Release"
 
+# Fetch git submodules
+git submodule update --init --recursive
+
 # Build APK
-msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH} /t:PackageForAndroid
+msbuild /p:Configuration=${BUILD_TYPE} /t:PackageForAndroid
 
 # Build APK & push to device
-msbuild /p:Configuration=${BUILD_TYPE} /p:AndroidSdkDirectory=${ANDROID_SDK_PATH} /t:install
+msbuild /p:Configuration=${BUILD_TYPE} /t:install
 ```
 
 ## Sneak preview

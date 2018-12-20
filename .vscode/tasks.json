@@ -4,8 +4,11 @@
             "label": "Restore dependencies",
             "type": "shell",
             "group": "build",
-            "command": "nuget",
-            "args": ["restore"],
+            "command": "msbuild",
+            "args": [
+                "/t:Restore",
+                "${workspaceRoot}/SmartGlass.Nano.Droid/SmartGlass.Nano.Droid.csproj"
+            ],
             "problemMatcher": "$msCompile"
         },
         {

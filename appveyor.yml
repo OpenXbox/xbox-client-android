@@ -10,7 +10,8 @@ environment:
     secure: DbsLa0YaOQb8BJox0D0crKWqGL3TiiUuSvVzTCTHoFkL8ZdSOwON8khP8tnIZnavFLbDxQyqLKC2PSjUAxbIep/tkUA6H5RTQ8FfYP+dLoBiUxCAONaklBIb8ZBCMRLzDqq2xjJ4T0i57jl8t3eGEQ==
 
 before_build:
-  - nuget restore
+  - git submodule update --init --recursive
+  - msbuild /t:Restore SmartGlass.Nano.Droid\SmartGlass.Nano.Droid.csproj
 build_script:
   - msbuild /t:SignAndroidPackage /p:Configuration=%CONFIGURATION% /p:AndroidKeyStore=true /p:AndroidSigningKeyAlias=OpenXboxAndroid /p:AndroidSigningKeyPass=%keystore-password% /p:AndroidSigningKeyStore=android_openxbox.keystore /p:AndroidSigningStorePass=%keystore-password% SmartGlass.Nano.Droid\SmartGlass.Nano.Droid.csproj
 

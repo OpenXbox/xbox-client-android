@@ -24,6 +24,9 @@ export BUILD_TYPE="Debug"
 # Fetch git submodules
 git submodule update --init --recursive
 
+# Fetch dependencies from NuGet
+msbuild /t:Restore
+
 # Build APK
 msbuild /p:Configuration=${BUILD_TYPE} /t:PackageForAndroid
 

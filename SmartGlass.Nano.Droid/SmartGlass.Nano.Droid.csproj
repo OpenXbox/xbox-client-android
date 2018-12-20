@@ -49,6 +49,8 @@
     <Compile Include="Stream\InputHandler.cs" />
     <Compile Include="Stream\VideoHandler.cs" />
     <Compile Include="Stream\MediaCoreConsumer.cs" />
+    <Compile Include="Model\ConsoleAdapter.cs" />
+    <Compile Include="Model\ConsoleConnection.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +60,8 @@
   <ItemGroup>
     <AndroidResource Include="Resources\layout\Main.axml" />
     <AndroidResource Include="Resources\layout\StreamLayout.axml" />
+    <AndroidResource Include="Resources\layout\ConsoleView.axml" />
+    <AndroidResource Include="Resources\menu\MainMenu.axml" />
     <AndroidResource Include="Resources\values\Strings.xml" />
     <AndroidResource Include="Resources\mipmap-hdpi\Icon.png" />
     <AndroidResource Include="Resources\mipmap-mdpi\Icon.png" />
@@ -88,6 +92,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.4" />
+    <PackageReference Include="Xamarin.Android.Support.SwipeRefreshLayout" Version="28.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(Configuration)' == 'Release'">

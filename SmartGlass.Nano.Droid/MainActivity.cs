@@ -1,24 +1,33 @@
-﻿using Android.App;
+﻿using System;
+using System.Linq;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+
+using Android.App;
 using Android.Widget;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using System.Collections.Generic;
 using Android.Content.PM;
+using Android.Support.V4.Widget;
+using Android.Graphics;
+using Java.Lang;
 
 using SmartGlass;
-using System.Threading.Tasks;
+using SmartGlass.Nano.Droid;
 
 namespace SmartGlass.Nano.Droid
 {
-    [Activity(Label = "Xbox Nano Client", MainLauncher = true, Icon = "@mipmap/icon",
-              ScreenOrientation = ScreenOrientation.Portrait)]
+    [Activity(Label = "Xbox Nano Client", MainLauncher = true, Icon = "@mipmap/icon")]
     public class MainActivity : Activity
     {
-        private List<string> _discovered;
-        private ArrayAdapter<string> _consoleListAdapter;
+        private bool IsConnecting = false;
+        private List<SmartGlass.Device> _consoles;
+        private Model.ConsoleAdapter _consoleListAdapter;
+
+        private SwipeRefreshLayout _refreshLayout;
         private ListView _consoleListView;
-        private Button _refreshButton;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -27,41 +36,90 @@ namespace SmartGlass.Nano.Droid
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
-            _consoleListView = FindViewById<ListView>(Resource.Id.lvConsoles);
-            _refreshButton = FindViewById<Button>(Resource.Id.btnRefresh);
+            _refreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.swiperefresh);
+            _consoleListView = FindViewById<ListView>(Resource.Id.lvConsolesList);
 
-            _discovered = new List<string>();
+            _refreshLayout.Refresh += RefreshLayout_Refresh;
 
-            _consoleListAdapter = new ArrayAdapter<string>(
-                this, Android.Resource.Layout.SimpleListItem1, _discovered);
+            _consoles = new List<SmartGlass.Device>();
+            _consoleListAdapter = new Model.ConsoleAdapter(this, _consoles);
             _consoleListView.Adapter = _consoleListAdapter;
 
             _consoleListView.ItemClick += ConsoleListView_ItemClick;
-            _refreshButton.Click += RefreshButton_Click;
         }
 
-        async Task Discover()
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            // set the menu layout on Main Activity  
+            MenuInflater.Inflate(Resource.Menu.MainMenu, menu);
+            return base.OnCreateOptionsMenu(menu);
+        }
+
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            switch (item.ItemId)
+            {
+                case Resource.Id.menu_refresh:
+                    RefreshLayout_Refresh(this, new EventArgs());
+                    break;
+            }
+
+            return base.OnOptionsItemSelected(item);
+        }
+
+        async Task RefreshConsoles()
         {
             var discovered = await Device.DiscoverAsync();
-            _discovered.Clear();
-            foreach (Device dev in discovered)
+            foreach (Device device in discovered)
             {
-                _consoleListAdapter.Add(dev.Address.ToString());
+                var existingItem = _consoles.FirstOrDefault(x => x.LiveId == device.LiveId);
+                if (existingItem != null)
+                {
+                    int i = _consoles.IndexOf(existingItem);
+                    _consoles[i] = device;
+                }
+                else
+                {
+                    _consoles.Add(device);
+                }
             }
         }
 
-        async void RefreshButton_Click(object sender, System.EventArgs e)
+        private async void RefreshLayout_Refresh(object sender, EventArgs e)
         {
-            await Discover();
+            await RefreshConsoles();
+            this.RunOnUiThread(() =>
+            {
+                _consoleListAdapter.NotifyDataSetChanged();
+            });
+            _refreshLayout.Refreshing = false;
         }
 
-        void ConsoleListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
+        async void ConsoleListView_ItemClick(object sender, AdapterView.ItemClickEventArgs e)
         {
-            string ipAddr = _consoleListAdapter.GetItem(e.Position);
+            if (IsConnecting)
+                return;
 
-            var intent = new Android.Content.Intent(this, typeof(StreamActivity));
-            intent.PutExtra("hostName", ipAddr);
-            StartActivity(intent);
+            IsConnecting = true;
+            SmartGlass.Device device = _consoleListAdapter[e.Position];
+
+            try
+            {
+                await Model.ConsoleConnection.Initialize(device.Address.ToString());
+
+                var intent = new Android.Content.Intent(this, typeof(StreamActivity));
+                StartActivity(intent);
+            }
+            catch (System.Exception ex)
+            {
+                var toast = Toast.MakeText(this,
+                    System.String.Format("Connecting to {0} failed! error: {1}", device.Address, ex.Message),
+                    ToastLength.Short);
+
+                toast.Show();
+            }
+
+            IsConnecting = false;
         }
     }
 }

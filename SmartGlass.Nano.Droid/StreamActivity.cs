@@ -36,8 +36,6 @@ namespace SmartGlass.Nano.Droid
         private InputManager _inputManager;
 
         private string _hostName;
-        private SmartGlassClient _smartGlassClient;
-        private NanoClient _nanoClient;
         private MediaCoreConsumer _mcConsumer;
         private InputHandler _inputHandler;
 
@@ -51,12 +49,6 @@ namespace SmartGlass.Nano.Droid
             Window.SetFlags(WindowManagerFlags.Fullscreen, WindowManagerFlags.Fullscreen);
 
             SetContentView(Resource.Layout.StreamLayout);
-
-            _hostName = Intent.Extras.GetString("hostName");
-            Toast.MakeText(this,
-                           String.Format("Connecting to {0}...", _hostName),
-                           ToastLength.Short)
-                 .Show();
 
             // Create your application here
             _videoSurface = FindViewById<TextureView>(Resource.Id.tvVideoStream);
@@ -77,8 +69,6 @@ namespace SmartGlass.Nano.Droid
             base.OnStop();
 
             _videoSurface.Dispose();
-            _smartGlassClient.Dispose();
-            _nanoClient.Dispose();
             _mcConsumer.Dispose();
         }
 
@@ -86,13 +76,15 @@ namespace SmartGlass.Nano.Droid
          * Video / Texture surface
          */
 
-        public void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
+        public async void OnSurfaceTextureAvailable(SurfaceTexture surface, int width, int height)
         {
-            if (setupRan)
+            if (Model.ConsoleConnection.Consumer != null)
                 return;
 
-            Task.Run(() => StartStream(surface));
-            setupRan = true;
+            _mcConsumer = new MediaCoreConsumer(surface,
+                Model.ConsoleConnection.AudioFormat, Model.ConsoleConnection.VideoFormat);
+
+            await Model.ConsoleConnection.StartStreaming(_mcConsumer);
         }
 
         public bool OnSurfaceTextureDestroyed(SurfaceTexture surface)
@@ -249,54 +241,6 @@ namespace SmartGlass.Nano.Droid
             {
                 _current_device_id = INVALID_GAMEPAD_INDEX;
             }
-        }
-
-        /*
-         * Protocol
-         */
-
-        public async Task StartStream(SurfaceTexture surface)
-        {
-            System.Diagnostics.Debug.WriteLine($"Connecting to console...");
-
-            _smartGlassClient = await SmartGlassClient.ConnectAsync(_hostName);
-
-            // Get general gamestream configuration
-            var config = GamestreamConfiguration.GetStandardConfig();
-
-            /* Modify standard config, if desired */
-
-            var broadcastChannel = _smartGlassClient.BroadcastChannel;
-            var session = await broadcastChannel.StartGamestreamAsync(config);
-
-            System.Diagnostics.Debug.WriteLine(
-                $"Connecting to Nano, TCP: {session.TcpPort}, UDP: {session.UdpPort}");
-
-            _nanoClient = new NanoClient(_hostName, session);
-
-            // General Handshaking & Opening channels
-            await _nanoClient.InitializeProtocolAsync();
-
-            // Audio & Video client handshaking
-            // Sets desired AV formats
-            Packets.AudioFormat audioFormat = _nanoClient.AudioFormats[0];
-            Packets.VideoFormat videoFormat = _nanoClient.VideoFormats[0];
-            await _nanoClient.InitializeStreamAsync(audioFormat, videoFormat);
-
-            // Start ChatAudio channel
-            Packets.AudioFormat chatAudioFormat = new Packets.AudioFormat(1, 24000, AudioCodec.Opus);
-            await _nanoClient.OpenChatAudioChannelAsync(chatAudioFormat);
-
-            // Start Controller input channel
-            await _nanoClient.OpenInputChannelAsync(1280, 720);
-
-            _mcConsumer = new MediaCoreConsumer(surface, audioFormat, videoFormat);
-            _nanoClient.AddConsumer(_mcConsumer);
-
-            // Tell console to start sending AV frames
-            await _nanoClient.StartStreamAsync();
-
-            System.Diagnostics.Debug.WriteLine($"Nano connected and running.");
         }
     }
 }

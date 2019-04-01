@@ -1,8 +1,12 @@
 # Xbox One Gamestreaming Android app
 
 [![Build status](https://ci.appveyor.com/api/projects/status/irv30kc612dbn75x/branch/master?svg=true)](https://ci.appveyor.com/project/tuxuser/xbox-client-android/branch/master)
-[![Discord](https://img.shields.io/badge/discord-OpenXbox-blue.svg)](https://discord.gg/E8kkJhQ)
+[![Discord](https://img.shields.io/badge/discord-OpenXbox-blue.svg)](https://openxbox.org/discord)
 
+## DEPRECATED
+__Project moved to https://github.com/OpenXbox/xbox-client-xamarin __
+
+## General
 Use **Visual Studio** or **Visual Studio for Mac** to build this project.
 
 The app is based on .NET library [OpenXbox.SmartGlass](https://github.com/OpenXbox/xbox-smartglass-csharp)
